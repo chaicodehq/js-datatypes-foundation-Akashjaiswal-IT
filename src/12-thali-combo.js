@@ -53,17 +53,32 @@
  *   // => "RAJASTHANI THALI (Veg) - Items: dal - Rs.250.00"
  */
 export function createThaliDescription(thali) {
-  // Your code here
+  if(typeof thali !== 'object' || Array.isArray(thali) || thali === null) return "";
+  if(typeof thali.name !== 'string' ||  typeof thali.price !== 'number' || !Array.isArray(thali.items) || typeof thali.isVeg !== "boolean") return "";
+  if(thali.isVeg) return `${thali.name.toUpperCase()} (Veg) - Items: ${thali.items.join(', ')} - Rs.${thali.price.toFixed(2)}`;
+  return `${thali.name.toUpperCase()} (Non-Veg) - Items: ${thali.items.join(', ')} - Rs.${thali.price.toFixed(2)}`;
 }
 
 export function getThaliStats(thalis) {
-  // Your code here
+  if(!Array.isArray(thalis) || thalis.length === 0) return null;
+  const veg = thalis.filter(e => e.isVeg).length;
+  const nonVeg = thalis.filter(e => !e.isVeg).length;
+  const totalPrice = thalis.reduce((acc, e) => acc + e.price, 0);
+  const prices = thalis.map(e => e.price);
+  const cheapest = Math.min(...prices);
+  const costliest = Math.max(...prices);
+  const names = thalis.map(e => e.name);
+  return { totalThalis : thalis.length, vegCount : veg, nonVegCount : nonVeg, avgPrice: (totalPrice/thalis.length).toFixed(2),cheapest: cheapest, costliest : costliest, names: names};
 }
 
 export function searchThaliMenu(thalis, query) {
-  // Your code here
+  if(!Array.isArray(thalis) || typeof query !== 'string') return [];
+  return thalis.filter(e => e.name.toLowerCase().includes(query.toLowerCase()) || e.items.some(item => item.toLowerCase().includes(query.toLowerCase())));
 }
 
 export function generateThaliReceipt(customerName, thalis) {
-  // Your code here
+  if(typeof customerName !== 'string' || !Array.isArray(thalis) || thalis.length === 0) return "";
+  customerName = customerName.toUpperCase();
+  const total = thalis.reduce((acc, e) => acc + e.price, 0);
+  return `THALI RECEIPT\n---\nCustomer: ${customerName}\n${thalis.map(e => `- ${e.name} x Rs.${e.price}`).join('\n')}\n---\nTotal: Rs.${total}\nItems: ${thalis.length}`;
 }
